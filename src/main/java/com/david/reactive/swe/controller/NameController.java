@@ -1,5 +1,7 @@
 package com.david.reactive.swe.controller;
 
+import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +18,7 @@ import reactor.core.publisher.Mono;
 @RestController
 public class NameController {
 
-  @PostMapping(value = "/uppercase", consumes = MediaType.TEXT_PLAIN_VALUE)
+  @PostMapping(value = "/uppercase", consumes = TEXT_PLAIN_VALUE, produces = TEXT_PLAIN_VALUE)
   public Mono<String> uppercase(ServerWebExchange serverWebExchange) {
 
     Assert.isTrue(serverWebExchange.getRequest().getHeaders().getContentType().getCharset()
