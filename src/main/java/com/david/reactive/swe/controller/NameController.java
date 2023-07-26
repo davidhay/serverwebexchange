@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.apache.commons.io.IOUtils;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +22,9 @@ public class NameController {
   Mono<String> uppercase(
       //@RequestBody String reqBody,
       ServerWebExchange ex) throws IOException {
-    Assert.isTrue(ex.getRequest().getHeaders().getContentType().getCharset().contains(StandardCharsets.UTF_8));
+    Assert.isTrue(ex.getRequest().getHeaders().getContentType().getCharset()
+        .contains(StandardCharsets.UTF_8));
+
     return getRequestBody(ex)
         .map(String::toUpperCase);
   }
@@ -29,13 +33,14 @@ public class NameController {
     try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
       return swe.getRequest().getBody()
           .doOnNext(buffer -> copy(buffer.asInputStream(), baos))
-          .then(Mono.defer(() -> Mono.just(baos.toString(StandardCharsets.UTF_8))));
+          .collectList()
+          .map(it -> baos.toString(StandardCharsets.UTF_8));
     }
   }
 
   void copy(InputStream is, OutputStream os) {
     try {
-        IOUtils.copy(is, os);
+      IOUtils.copy(is, os);
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
