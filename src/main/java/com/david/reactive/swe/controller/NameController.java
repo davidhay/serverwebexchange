@@ -17,26 +17,29 @@ import reactor.core.publisher.Mono;
 public class NameController {
 
   @PostMapping(value = "/uppercase", consumes = MediaType.TEXT_PLAIN_VALUE)
-  Mono<String> uppercase(
-      //@RequestBody String reqBody,
-      ServerWebExchange ex) throws IOException {
-    Assert.isTrue(ex.getRequest().getHeaders().getContentType().getCharset()
-        .contains(StandardCharsets.UTF_8));
+  Mono<String> uppercase(ServerWebExchange serverWebExchange) {
 
-    return getRequestBody(ex)
+    Assert.isTrue(serverWebExchange.getRequest().getHeaders().getContentType().getCharset()
+        .contains(StandardCharsets.UTF_8), "The charset is not utf-8");
+
+    return getRequestBody(serverWebExchange)
         .map(String::toUpperCase);
   }
 
-  private Mono<String> getRequestBody(ServerWebExchange swe) throws IOException {
-    try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-      return swe.getRequest().getBody()
+  private Mono<String> getRequestBody(ServerWebExchange serverWebExchange) {
+    try (var baos = new ByteArrayOutputStream()) {
+
+      return serverWebExchange.getRequest().getBody()
           .doOnNext(buffer -> copy(buffer.asInputStream(), baos))
           .collectList()
           .map(it -> baos.toString(StandardCharsets.UTF_8));
+
+    } catch (IOException ex) {
+      return Mono.error(ex);
     }
   }
 
-  void copy(InputStream is, OutputStream os) {
+  private void copy(InputStream is, OutputStream os) {
     try {
       IOUtils.copy(is, os);
     } catch (IOException ex) {
