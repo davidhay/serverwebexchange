@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 public class NameController {
 
   @PostMapping(value = "/uppercase", consumes = MediaType.TEXT_PLAIN_VALUE)
-  Mono<String> uppercase(ServerWebExchange serverWebExchange) {
+  public Mono<String> uppercase(ServerWebExchange serverWebExchange) {
 
     Assert.isTrue(serverWebExchange.getRequest().getHeaders().getContentType().getCharset()
         .contains(StandardCharsets.UTF_8), "The charset is not utf-8");
