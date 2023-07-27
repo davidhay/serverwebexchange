@@ -29,9 +29,9 @@ public class NameControllerTest {
         .header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
         .header(HttpHeaders.ACCEPT_CHARSET, "utf-8")
         .exchange()
+        .expectStatus().is2xxSuccessful()
         .expectBody(String.class)
-        .consumeWith(ent ->
-            assertThat(ent.getResponseBody()).isEqualTo("DAVID"));
+        .isEqualTo("DAVID");
   }
 
 }
